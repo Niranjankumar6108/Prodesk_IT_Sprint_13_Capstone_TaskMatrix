@@ -1,0 +1,106 @@
+
+Enum workspace_role {
+  owner
+  admin
+  project_manager
+  member
+}
+
+Enum project_status {
+  active
+  on_hold
+  completed
+  archived
+}
+
+Enum task_status {
+  backlog
+  todo
+  in_progress
+  review
+  done
+}
+
+Enum task_priority {
+  low
+  medium
+  high
+  urgent
+}
+
+Enum membership_status {
+  invited
+  active
+}
+
+Table users {
+  id uuid [pk]
+  full_name varchar(100) [not null]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [not null]
+  avatar_url text
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table workspaces {
+  id uuid [pk]
+  name varchar(150) [not null]
+  description text
+  owner_id uuid [not null, ref: > users.id]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table workspace_members {
+  id uuid [pk]
+  workspace_id uuid [not null, ref: > workspaces.id]
+  user_id uuid [not null, ref: > users.id]
+  role workspace_role [not null, default: 'member']
+  status membership_status [not null, default: 'active']
+  joined_at timestamptz
+
+  indexes {
+    (workspace_id, user_id) [unique]
+  }
+}
+
+Table projects {
+  id uuid [pk]
+  workspace_id uuid [not null, ref: > workspaces.id]
+  name varchar(150) [not null]
+  project_key varchar(20) [not null]
+  description text
+  status project_status [not null, default: 'active']
+  created_by uuid [not null, ref: > users.id]
+  start_date date
+  due_date date
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (workspace_id, project_key) [unique]
+  }
+}
+
+Table tasks {
+  id uuid [pk]
+  project_id uuid [not null, ref: > projects.id]
+  title varchar(200) [not null]
+  description text
+  status task_status [not null, default: 'todo']
+  priority task_priority [not null, default: 'medium']
+  assigned_to uuid [ref: >? users.id]
+  reporter_id uuid [not null, ref: > users.id]
+  position int [not null, default: 0]
+  due_date timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    project_id
+    assigned_to
+    (project_id, status)
+  }
+}

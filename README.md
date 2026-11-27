@@ -133,7 +133,14 @@ The initial relational database will contain five core tables:
 
 Additional tables for activity logs and notifications may be introduced during feature expansion.
 
-**Entity Relationship Diagram:** `docs/architecture/taskmatrix-erd.png`
+## Database Entity Relationship Diagram
+
+TaskMatrix uses PostgreSQL as its relational database.
+
+The initial database consists of five core tables:
+Users, Workspaces, Workspace Members, Projects, and Tasks.
+
+![TaskMatrix Database ERD](docs/architecture/taskmatrix-erd.png)
 
 ## 10. System Architecture
 
